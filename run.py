@@ -19,6 +19,7 @@ def send_telegram(message):
     # message = "hello from your telegram bot"
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
     requests.get(url).json()
+    
     print('信息已发送至telegram')
     
 DEBUG_MODE = False  # Debug模式，是否打印请求返回信息
