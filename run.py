@@ -12,8 +12,8 @@ from rich import print_json
 import requests
 
 def send_telegram(message):
-    TOKEN = "6855338190:AAHBUMz6IMCeKII140ck136E0EhCQxdDbsI"
-    chat_id = "591217495"
+    TOKEN = os.getenv('TOKEN')
+    chat_id = os.getenv('CHAT_ID')
     # message = "hello from your telegram bot"
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
     requests.get(url).json()
