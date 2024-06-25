@@ -12,9 +12,9 @@ from rich import print_json
 import requests
 
 def send_telegram(message):
-    TOKEN = os.getenv('TOKEN')
+    TOKEN = os.getenv('TG_TOKEN')
     print(TOKEN)
-    chat_id = os.getenv('CHAT_ID')
+    chat_id = os.getenv('TG_CHAT_ID')
     print(chat_id)
     # message = "hello from your telegram bot"
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
