@@ -10,6 +10,7 @@ import image
 import recognize
 from rich import print_json
 import requests
+import random
 
 def send_telegram(message):
     TOKEN = os.getenv('TG_TOKEN')
@@ -19,14 +20,12 @@ def send_telegram(message):
     # message = "hello from your telegram bot"
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
     requests.get(url).json()
-    
     print('信息已发送至telegram')
-    
 DEBUG_MODE = False  # Debug模式，是否打印请求返回信息
 # PROXY = input('请输入代理，如不需要直接回车:')  # 代理，如果多次出现IP问题可尝试将自己所用的魔法设置为代理。例如：使用clash则设置为 'http://127.0.0.1:7890'
 PROXY = ''
 INVITE_CODE = os.getenv('INVITE_CODE') or input('请输入邀请码: ')
-print(INVITE_CODE)
+#print(INVITE_CODE)
 
 # 检查变量
 def check_env():
@@ -103,18 +102,37 @@ def md5(input_string):
 
 
 async def get_sign(xid, t):
-    e = [
-        {"alg": "md5", "salt": "KHBJ07an7ROXDoK7Db"},
-        {"alg": "md5", "salt": "G6n399rSWkl7WcQmw5rpQInurc1DkLmLJqE"},
-        {"alg": "md5", "salt": "JZD1A3M4x+jBFN62hkr7VDhkkZxb9g3rWqRZqFAAb"},
-        {"alg": "md5", "salt": "fQnw/AmSlbbI91Ik15gpddGgyU7U"},
-        {"alg": "md5", "salt": "/Dv9JdPYSj3sHiWjouR95NTQff"},
-        {"alg": "md5", "salt": "yGx2zuTjbWENZqecNI+edrQgqmZKP"},
-        {"alg": "md5", "salt": "ljrbSzdHLwbqcRn"},
-        {"alg": "md5", "salt": "lSHAsqCkGDGxQqqwrVu"},
-        {"alg": "md5", "salt": "TsWXI81fD1"},
-        {"alg": "md5", "salt": "vk7hBjawK/rOSrSWajtbMk95nfgf3"}
-    ]
+    e = [{
+        "alg": "md5",
+        "salt": "KHBJ07an7ROXDoK7Db"
+    }, {
+        "alg": "md5",
+        "salt": "G6n399rSWkl7WcQmw5rpQInurc1DkLmLJqE"
+    }, {
+        "alg": "md5",
+        "salt": "JZD1A3M4x+jBFN62hkr7VDhkkZxb9g3rWqRZqFAAb"
+    }, {
+        "alg": "md5",
+        "salt": "fQnw/AmSlbbI91Ik15gpddGgyU7U"
+    }, {
+        "alg": "md5",
+        "salt": "/Dv9JdPYSj3sHiWjouR95NTQff"
+    }, {
+        "alg": "md5",
+        "salt": "yGx2zuTjbWENZqecNI+edrQgqmZKP"
+    }, {
+        "alg": "md5",
+        "salt": "ljrbSzdHLwbqcRn"
+    }, {
+        "alg": "md5",
+        "salt": "lSHAsqCkGDGxQqqwrVu"
+    }, {
+        "alg": "md5",
+        "salt": "TsWXI81fD1"
+    }, {
+        "alg": "md5",
+        "salt": "vk7hBjawK/rOSrSWajtbMk95nfgf3"
+    }]
     md5_hash = f"YvtoWO6GNHiuCl7xundefinedmypikpak.com{xid}{t}"
     for item in e:
         md5_hash += item["salt"]
@@ -123,10 +141,7 @@ async def get_sign(xid, t):
 
 
 async def get_mail():
-    json_data = {
-        "min_name_length": 10,
-        "max_name_length": 10
-    }
+    json_data = {"min_name_length": 10, "max_name_length": 10}
     url = 'https://api.internal.temp-mail.io/api/v3/email/new'
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=json_data, ssl=False) as response:
@@ -155,7 +170,7 @@ async def get_code(mail, max_retries=10, delay=1):
     return None
 
 
-async def init(xid, mail):
+async def init(xid, mail,change_ip):
     url = 'https://user.mypikpak.com/v1/shield/captcha/init'
     body = {
         "client_id": "YvtoWO6GNHiuCl7x",
@@ -167,36 +182,68 @@ async def init(xid, mail):
         }
     }
     headers = {
-        'host': 'user.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'accept-language': 'zh-CN',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-device-model': 'electron%2F18.3.15',
-        'x-device-name': 'PC-Electron',
-        'x-device-sign': 'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x-net-work-type': 'NONE',
-        'x-os-version': 'Win32',
-        'x-platform-version': '1',
-        'x-protocol-version': '301',
-        'x-provider-name': 'NONE',
-        'x-sdk-version': '6.0.0'
+        'host':
+        'user.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'accept-language':
+        'zh-CN',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-device-model':
+        'electron%2F18.3.15',
+        'x-device-name':
+        'PC-Electron',
+        'x-device-sign':
+        'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x-net-work-type':
+        'NONE',
+        'x-os-version':
+        'Win32',
+        'x-platform-version':
+        '1',
+        'x-protocol-version':
+        '301',
+        'x-provider-name':
+        'NONE',
+        'x-sdk-version':
+        '6.0.0',
+        'X-Forwarded-For': 
+        str(change_ip)
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+        async with session.post(url,
+                                json=body,
+                                headers=headers,
+                                ssl=False,
+                                proxy=PROXY) as response:
             response_data = await response.json()
             if 'url' in response_data:
                 if DEBUG_MODE:
@@ -204,17 +251,17 @@ async def init(xid, mail):
                     print_json(json.dumps(response_data, indent=4))
                 return response_data
             else:
-                raise print('IP频繁,请更换IP或者稍后再试!!!\n', response_data['error_description'])
+                print('邮箱或者IP频繁,请更换IP或者稍后重试......')
+                raise Exception(response_data.get('error_description', 'Unknown error'))
 
 
-async def get_image(xid):
+async def get_image(xid,change_ip):
     url = "https://user.mypikpak.com/pzzl/gen"
-    params = {
-        "deviceid": xid,
-        "traceid": ""
-    }
+    header = {'X-Forwarded-For': str(change_ip)}
+    params = {"deviceid": xid, "traceid": ""}
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, params=params, ssl=False, proxy=PROXY) as response:
+        async with session.get(url, params=params, ssl=False,
+                               proxy=PROXY) as response:
             imgs_json = await response.json()
             frames = imgs_json["frames"]
             pid = imgs_json['pid']
@@ -222,12 +269,10 @@ async def get_image(xid):
             if DEBUG_MODE:
                 print('滑块ID:')
                 print_json(json.dumps(pid, indent=4))
-            params = {
-                'deviceid': xid,
-                'pid': pid,
-                'traceid': traceid
-            }
-            async with session.get(f"https://user.mypikpak.com/pzzl/image", params=params, ssl=False,
+            params = {'deviceid': xid, 'pid': pid, 'traceid': traceid}
+            async with session.get(f"https://user.mypikpak.com/pzzl/image",
+                                   params=params,
+                                   ssl=False,
                                    proxy=PROXY) as response1:
                 img_data = await response1.read()
                 # 保存初始图片
@@ -251,10 +296,17 @@ async def get_image(xid):
                 'a': npac[2],
                 'c': npac[3]
             }
-            async with session.get(f"https://user.mypikpak.com/pzzl/verify", params=params, ssl=False,
+            async with session.get(f"https://user.mypikpak.com/pzzl/verify",
+                                   params=params,
+                                   headers=header,
+                                   ssl=False,
                                    proxy=PROXY) as response1:
                 response_data = await response1.json()
-            result = {'pid': pid, 'traceid': traceid, 'response_data': response_data}
+            result = {
+                'pid': pid,
+                'traceid': traceid,
+                'response_data': response_data
+            }
             return result
 
 
@@ -265,13 +317,17 @@ def save_image(img_data, img_path):
         f.write(img_data)
 
 
-async def get_new_token(result, xid, captcha):
+async def get_new_token(result, xid, captcha,change_ip):
     traceid = result['traceid']
     pid = result['pid']
+    header = {'X-Forwarded-For': str(change_ip)}
     async with aiohttp.ClientSession() as session:
         async with session.get(
                 f"https://user.mypikpak.com/credit/v1/report?deviceid={xid}&captcha_token={captcha}&type"
-                f"=pzzlSlider&result=0&data={pid}&traceid={traceid}", ssl=False, proxy=PROXY) as response2:
+                f"=pzzlSlider&result=0&data={pid}&traceid={traceid}",
+                headers=header,
+                ssl=False,
+                proxy=PROXY) as response2:
             response_data = await response2.json()
             if DEBUG_MODE:
                 print('获取验证TOKEN:')
@@ -279,7 +335,7 @@ async def get_new_token(result, xid, captcha):
             return response_data
 
 
-async def verification(captcha_token, xid, mail):
+async def verification(captcha_token, xid, mail,change_ip):
     url = 'https://user.mypikpak.com/v1/auth/verification'
     body = {
         "email": mail,
@@ -289,37 +345,69 @@ async def verification(captcha_token, xid, mail):
         "client_id": "YvtoWO6GNHiuCl7x"
     }
     headers = {
-        'host': 'user.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'accept-language': 'zh-CN',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-captcha-token': captcha_token,
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-device-model': 'electron%2F18.3.15',
-        'x-device-name': 'PC-Electron',
-        'x-device-sign': 'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x-net-work-type': 'NONE',
-        'x-os-version': 'Win32',
-        'x-platform-version': '1',
-        'x-protocol-version': '301',
-        'x-provider-name': 'NONE',
-        'x-sdk-version': '6.0.0'
+        'host':
+        'user.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'accept-language':
+        'zh-CN',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-captcha-token':
+        captcha_token,
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-device-model':
+        'electron%2F18.3.15',
+        'x-device-name':
+        'PC-Electron',
+        'x-device-sign':
+        'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x-net-work-type':
+        'NONE',
+        'x-os-version':
+        'Win32',
+        'x-platform-version':
+        '1',
+        'x-protocol-version':
+        '301',
+        'x-provider-name':
+        'NONE',
+        'x-sdk-version':
+        '6.0.0',
+        'X-Forwarded-For': str(change_ip)
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+        async with session.post(url,
+                                json=body,
+                                headers=headers,
+                                ssl=False,
+                                proxy=PROXY) as response:
             response_data = await response.json()
             if DEBUG_MODE:
                 print('发送验证码:')
@@ -327,7 +415,7 @@ async def verification(captcha_token, xid, mail):
             return response_data
 
 
-async def verify(xid, verification_id, code):
+async def verify(xid, verification_id, code,change_ip):
     url = 'https://user.mypikpak.com/v1/auth/verification/verify'
     body = {
         "verification_id": verification_id,
@@ -335,36 +423,67 @@ async def verify(xid, verification_id, code):
         "client_id": "YvtoWO6GNHiuCl7x"
     }
     headers = {
-        'host': 'user.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'accept-language': 'zh-CN',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-device-model': 'electron%2F18.3.15',
-        'x-device-name': 'PC-Electron',
-        'x-device-sign': 'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x-net-work-type': 'NONE',
-        'x-os-version': 'Win32',
-        'x-platform-version': '1',
-        'x-protocol-version': '301',
-        'x-provider-name': 'NONE',
-        'x-sdk-version': '6.0.0'
+        'host':
+        'user.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'accept-language':
+        'zh-CN',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-device-model':
+        'electron%2F18.3.15',
+        'x-device-name':
+        'PC-Electron',
+        'x-device-sign':
+        'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x-net-work-type':
+        'NONE',
+        'x-os-version':
+        'Win32',
+        'x-platform-version':
+        '1',
+        'x-protocol-version':
+        '301',
+        'x-provider-name':
+        'NONE',
+        'x-sdk-version':
+        '6.0.0',
+        'X-Forwarded-For': str(change_ip)
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+        async with session.post(url,
+                                json=body,
+                                headers=headers,
+                                ssl=False,
+                                proxy=PROXY) as response:
             response_data = await response.json()
             if DEBUG_MODE:
                 print('验证码验证结果:')
@@ -372,7 +491,7 @@ async def verify(xid, verification_id, code):
             return response_data
 
 
-async def signup(xid, mail, code, verification_token):
+async def signup(xid, mail, code, verification_token,change_ip):
     url = 'https://user.mypikpak.com/v1/auth/signup'
     body = {
         "email": mail,
@@ -382,36 +501,67 @@ async def signup(xid, mail, code, verification_token):
         "client_id": "YvtoWO6GNHiuCl7x"
     }
     headers = {
-        'host': 'user.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'accept-language': 'zh-CN',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-device-model': 'electron%2F18.3.15',
-        'x-device-name': 'PC-Electron',
-        'x-device-sign': 'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x-net-work-type': 'NONE',
-        'x-os-version': 'Win32',
-        'x-platform-version': '1',
-        'x-protocol-version': '301',
-        'x-provider-name': 'NONE',
-        'x-sdk-version': '6.0.0'
+        'host':
+        'user.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'accept-language':
+        'zh-CN',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-device-model':
+        'electron%2F18.3.15',
+        'x-device-name':
+        'PC-Electron',
+        'x-device-sign':
+        'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x-net-work-type':
+        'NONE',
+        'x-os-version':
+        'Win32',
+        'x-platform-version':
+        '1',
+        'x-protocol-version':
+        '301',
+        'x-provider-name':
+        'NONE',
+        'x-sdk-version':
+        '6.0.0',
+        'X-Forwarded-For': str(change_ip)
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+        async with session.post(url,
+                                json=body,
+                                headers=headers,
+                                ssl=False,
+                                proxy=PROXY) as response:
             response_data = await response.json()
             if DEBUG_MODE:
                 print('注册结果:')
@@ -419,7 +569,7 @@ async def signup(xid, mail, code, verification_token):
             return response_data
 
 
-async def init1(xid, access_token, sub, sign, t):
+async def init1(xid, access_token, sub, sign, t,change_ip):
     url = 'https://user.mypikpak.com/v1/shield/captcha/init'
     body = {
         "client_id": "YvtoWO6GNHiuCl7x",
@@ -435,36 +585,67 @@ async def init1(xid, access_token, sub, sign, t):
         },
     }
     headers = {
-        'host': 'user.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN',
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-device-model': 'electron%2F18.3.15',
-        'x-device-name': 'PC-Electron',
-        'x-device-sign': 'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x-net-work-type': 'NONE',
-        'x-os-version': 'Win32',
-        'x-platform-version': '1',
-        'x-protocol-version': '301',
-        'x-provider-name': 'NONE',
-        'x-sdk-version': '6.0.0'
+        'host':
+        'user.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'accept-language':
+        'zh-CN',
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-device-model':
+        'electron%2F18.3.15',
+        'x-device-name':
+        'PC-Electron',
+        'x-device-sign':
+        'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x-net-work-type':
+        'NONE',
+        'x-os-version':
+        'Win32',
+        'x-platform-version':
+        '1',
+        'x-protocol-version':
+        '301',
+        'x-provider-name':
+        'NONE',
+        'x-sdk-version':
+        '6.0.0',
+        'X-Forwarded-For': str(change_ip)
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+        async with session.post(url,
+                                json=body,
+                                headers=headers,
+                                ssl=False,
+                                proxy=PROXY) as response:
             response_data = await response.json()
             if DEBUG_MODE:
                 print('二次安全验证:')
@@ -472,38 +653,59 @@ async def init1(xid, access_token, sub, sign, t):
             return response_data
 
 
-async def invite(access_token, captcha_token, xid):
+async def invite(access_token, captcha_token, xid,change_ip):
     url = 'https://api-drive.mypikpak.com/vip/v1/activity/invite'
-    body = {
-        "apk_extra": {
-            "invite_code": ""
-        }
-    }
+    body = {"apk_extra": {"invite_code": ""}}
     headers = {
-        'host': 'api-drive.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN',
-        'authorization': 'Bearer ' + access_token,
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) PikPak/2.3.2.4101 '
-                      'Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-captcha-token': captcha_token,
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-system-language': 'zh-CN'
+        'host':
+        'api-drive.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'accept-language':
+        'zh-CN',
+        'authorization':
+        'Bearer ' + access_token,
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) PikPak/2.3.2.4101 '
+        'Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-captcha-token':
+        captcha_token,
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-system-language':
+        'zh-CN',
+        'X-Forwarded-For': str(change_ip)
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+        async with session.post(url,
+                                json=body,
+                                headers=headers,
+                                ssl=False,
+                                proxy=PROXY) as response:
             response_data = await response.json()
             if DEBUG_MODE:
                 print('获取邀请:')
@@ -511,7 +713,7 @@ async def invite(access_token, captcha_token, xid):
             return response_data
 
 
-async def init2(xid, access_token, sub, sign, t):
+async def init2(xid, access_token, sub, sign, t,change_ip):
     url = 'https://user.mypikpak.com/v1/shield/captcha/init'
     body = {
         "client_id": "YvtoWO6GNHiuCl7x",
@@ -527,36 +729,67 @@ async def init2(xid, access_token, sub, sign, t):
         },
     }
     headers = {
-        'host': 'user.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN',
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-device-model': 'electron%2F18.3.15',
-        'x-device-name': 'PC-Electron',
-        'x-device-sign': 'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x-net-work-type': 'NONE',
-        'x-os-version': 'Win32',
-        'x-platform-version': '1',
-        'x-protocol-version': '301',
-        'x-provider-name': 'NONE',
-        'x-sdk-version': '6.0.0'
+        'host':
+        'user.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'accept-language':
+        'zh-CN',
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'MainWindow Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'PikPak/2.3.2.4101 Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-device-model':
+        'electron%2F18.3.15',
+        'x-device-name':
+        'PC-Electron',
+        'x-device-sign':
+        'wdi10.ce6450a2dc704cd49f0be1c4eca40053xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x-net-work-type':
+        'NONE',
+        'x-os-version':
+        'Win32',
+        'x-platform-version':
+        '1',
+        'x-protocol-version':
+        '301',
+        'x-provider-name':
+        'NONE',
+        'x-sdk-version':
+        '6.0.0',
+        'X-Forwarded-For': str(change_ip)
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+        async with session.post(url,
+                                json=body,
+                                headers=headers,
+                                ssl=False,
+                                proxy=PROXY) as response:
             response_data = await response.json()
             if DEBUG_MODE:
                 print('三次安全验证:')
@@ -564,40 +797,62 @@ async def init2(xid, access_token, sub, sign, t):
             return response_data
 
 
-async def activation_code(access_token, captcha, xid, in_code):
+async def activation_code(access_token, captcha, xid, in_code,change_ip):
     url = 'https://api-drive.mypikpak.com/vip/v1/order/activation-code'
-    body = {
-        "activation_code": in_code,
-        "page": "invite"
-    }
+    body = {"activation_code": in_code, "page": "invite"}
     headers = {
-        'host': 'api-drive.mypikpak.com',
-        'content-length': str(len(json.dumps(body))),
-        'accept': '*/*',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN',
-        'authorization': 'Bearer ' + access_token,
-        'referer': 'https://pc.mypikpak.com',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) PikPak/2.3.2.4101 '
-                      'Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
-        'content-type': 'application/json',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="100"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'x-captcha-token': captcha,
-        'x-client-id': 'YvtoWO6GNHiuCl7x',
-        'x-client-version': '2.3.2.4101',
-        'x-device-id': xid,
-        'x-system-language': 'zh-CN'
+        'host':
+        'api-drive.mypikpak.com',
+        'content-length':
+        str(len(json.dumps(body))),
+        'accept':
+        '*/*',
+        'accept-encoding':
+        'gzip, deflate, br',
+        'accept-language':
+        'zh-CN',
+        'authorization':
+        'Bearer ' + access_token,
+        'referer':
+        'https://pc.mypikpak.com',
+        'sec-fetch-dest':
+        'empty',
+        'sec-fetch-mode':
+        'cors',
+        'sec-fetch-site':
+        'cross-site',
+        'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) PikPak/2.3.2.4101 '
+        'Chrome/100.0.4896.160 Electron/18.3.15 Safari/537.36',
+        'content-type':
+        'application/json',
+        'sec-ch-ua':
+        '" Not A;Brand";v="99", "Chromium";v="100"',
+        'sec-ch-ua-mobile':
+        '?0',
+        'sec-ch-ua-platform':
+        '"Windows"',
+        'x-captcha-token':
+        captcha,
+        'x-client-id':
+        'YvtoWO6GNHiuCl7x',
+        'x-client-version':
+        '2.3.2.4101',
+        'x-device-id':
+        xid,
+        'x-system-language':
+        'zh-CN',
+        'X-Forwarded-For': str(change_ip)
     }
 
     async with aiohttp.ClientSession() as session:
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.post(url, json=body, headers=headers, ssl=False, proxy=PROXY) as response:
+                async with session.post(url,
+                                        json=body,
+                                        headers=headers,
+                                        ssl=False,
+                                        proxy=PROXY) as response:
                     response_data = await response.json()
                     if DEBUG_MODE:
                         print('填写邀请:')
@@ -606,36 +861,55 @@ async def activation_code(access_token, captcha, xid, in_code):
         except Exception as error:
             print('Error:', error)
             raise error
-
+            
+async def get_change_ip():
+    m = random.randint(0, 255)
+    n = random.randint(0, 255)
+    x = random.randint(0, 255)
+    y = random.randint(0, 255)
+    randomIP = str(m) + '.' + str(n) + '.' + str(x) + '.' + str(y)
+    return randomIP
 
 async def main():
     try:
+        change_ip = get_change_ip()
         check_env()
         incode = INVITE_CODE
         start_time = time.time()
+        print(f'程序开始运行,ip选取为:{change_ip}')
         xid = str(uuid.uuid4()).replace("-", "")
         mail = await get_mail()
-        Init = await init(xid, mail)
+        Init = await init(xid, mail,change_ip)
         while True:
             print('验证滑块中...')
-            img_info = await get_image(xid)
+            img_info = await get_image(xid,change_ip)
             if img_info['response_data']['result'] == 'accept':
                 print('验证通过!!!')
                 break
             else:
                 print('验证失败, 重新验证滑块中...')
-        captcha_token_info = await get_new_token(img_info, xid, Init['captcha_token'])
-        verification_id = await verification(captcha_token_info['captcha_token'], xid, mail)
+        captcha_token_info = await get_new_token(img_info, xid,
+                                                 Init['captcha_token'],change_ip)
+        verification_id = await verification(
+            captcha_token_info['captcha_token'], xid, mail,change_ip)
         code = await get_code(mail)
-        verification_response = await verify(xid, verification_id['verification_id'], code)
-        signup_response = await signup(xid, mail, code, verification_response['verification_token'])
+        verification_response = await verify(
+            xid, verification_id['verification_id'], code,change_ip)
+        signup_response = await signup(
+            xid, mail, code, verification_response['verification_token'],change_ip)
         current_time = str(int(time.time()))
         sign = await get_sign(xid, current_time)
-        init1_response = await init1(xid, signup_response['access_token'], signup_response['sub'], sign, current_time)
-        await invite(signup_response['access_token'], init1_response['captcha_token'], xid)
-        init2_response = await init2(xid, signup_response['access_token'], signup_response['sub'], sign, current_time)
-        activation = await activation_code(signup_response['access_token'], init2_response['captcha_token'], xid,
-                                           incode)
+        init1_response = await init1(xid, signup_response['access_token'],
+                                     signup_response['sub'], sign,
+                                     current_time,change_ip)
+        await invite(signup_response['access_token'],
+                     init1_response['captcha_token'], xid,change_ip)
+        init2_response = await init2(xid, signup_response['access_token'],
+                                     signup_response['sub'], sign,
+                                     current_time,change_ip)
+        activation = await activation_code(signup_response['access_token'],
+                                           init2_response['captcha_token'],
+                                           xid, incode,change_ip)
         end_time = time.time()
         run_time = f"{(end_time - start_time):.2f}"
         if activation['add_days'] == 5:
