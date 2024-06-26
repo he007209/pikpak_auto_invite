@@ -862,7 +862,7 @@ async def activation_code(access_token, captcha, xid, in_code,change_ip):
             print('Error:', error)
             raise error
             
-async def get_change_ip():
+def get_change_ip():
     m = random.randint(0, 255)
     n = random.randint(0, 255)
     x = random.randint(0, 255)
