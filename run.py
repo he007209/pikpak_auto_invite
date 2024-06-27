@@ -14,9 +14,9 @@ import random
 
 def send_telegram(message):
     TOKEN = os.getenv('TG_TOKEN')
-    print(TOKEN)
+    #print(TOKEN)
     chat_id = os.getenv('TG_CHAT_ID')
-    print(chat_id)
+    #print(chat_id)
     # message = "hello from your telegram bot"
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
     requests.get(url).json()
