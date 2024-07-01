@@ -12,6 +12,7 @@ from rich import print_json
 import requests
 import random
 
+
 def send_telegram(message):
     TOKEN = os.getenv('TG_TOKEN')
     #print(TOKEN)
